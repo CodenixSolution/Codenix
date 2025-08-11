@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Codenix solutions</title>
+ 
+  
+  <!-- External libs (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.10.2/lottie.min.js" defer></script>
+
+  <style>
+    /* ========== Keep your original base styles (unchanged) ========== */
+    * { margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: linear-gradient(-45deg,#1a1a2e,#16213e,#0f3460,#1a1a2e);
+      background-size:400% 400%; animation:gradientBG 12s ease infinite;
+      color:#fff; overflow-x:hidden;
+    }
+    @keyframes gradientBG {0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    nav{position:fixed;width:100%;top:0;left:0;background:rgba(0,0,0,0.7);padding:15px 50px;display:flex;justify-content:space-between;align-items:center;z-index:1100;backdrop-filter:blur(10px);animation:slideDown 1s ease forwards}
+    nav h1{font-size:1.5rem;letter-spacing:1px}
+    nav ul{display:flex;gap:25px;list-style:none}
+    nav ul li a{text-decoration:none;color:white;font-weight:500;transition:0.3s}
+    nav ul li a:hover{color:#00f5d4;transform:scale(1.1)}
+    @keyframes slideDown{0%{transform:translateY(-100%);opacity:0}100%{transform:translateY(0);opacity:1}}
+
+    /* ========== NEW: Top progress bar ========== */
+    #scroll-progress {
+      position: fixed; left:0; top:0; height:4px; z-index:1200;
+      background: linear-gradient(90deg,#00f5d4,#7c3aed); width:0%;   
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      transition: width 0.1s linear;
+    }
+
+    /* ========== Hero (kept original look + added layers) ========== */
+    .hero {
+      position:relative;
+      height:100vh; display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 20px;
+      /* multi-layer parallax: background image fixed (original), plus particle layer & lottie */
+      background: linear-gradient(120deg, rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url('ChatGPT Image Aug 9, 2025, 02_12_39 PM.png') center/cover fixed;
+      animation:fadeIn 1.5s ease-in-out;
+      overflow:hidden;
+    }
+    .hero h2{font-size:2.5rem;margin-bottom:450px;animation:textGlow 2s infinite alternate}
+    .hero p{max-width:600px;font-size:1.05rem;margin-bottom:18px;animation:fadeUp 1.5s ease}
+    .btn{background:#00f5d4;padding:12px 25px;color:#000;font-weight:700;border-radius:25px;cursor:pointer;border:none;animation:bounceIn 2s}
+    .btn:hover{background:#0ff;transform:scale(1.05)}
+    @keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+    @keyframes fadeUp{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+    @keyframes textGlow{0%{text-shadow:0 0 5px #00f5d4}100%{text-shadow:0 0 20px #00f5d4}}
+    @keyframes bounceIn{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+
+    /* Lottie holder top-right in hero */
+    #lottie-hero { position:absolute; right:6%; top:12%; width:160px; height:160px; pointer-events:none; opacity:.95; filter: drop-shadow(0 8px 30px rgba(0,0,0,.4)); }
+
+    /* ripple effect circles */
+    .ripple-circle {
+      position:absolute; border-radius:50%; pointer-events:none;
+      background: radial-gradient(circle, rgba(255,255,255,0.08), rgba(255,255,255,0));
+      transform: translate(-50%,-50%); opacity:0.9;
+      mix-blend-mode: screen;
+    }
+
+    /* ========== Reveal animation (improved) ========== */
+    .reveal { opacity:0; transform:translateY(30px); transition:all .75s cubic-bezier(.2,.9,.2,1); will-change: transform, opacity; }
+    .reveal.active { opacity:1; transform:none; }
+
+    /* ========== About + Counters ========== */
+    .about { padding:80px 20px; background:#42484f; text-align:center; }
+    .about h3 { font-size:2rem; margin-bottom:16px; }
+    .counters { display:flex; gap:20px; justify-content:center; margin-top:22px; flex-wrap:wrap; }
+    .counter { background: rgba(255,255,255,0.04); padding:18px 24px; border-radius:12px; min-width:140px; text-align:center; backdrop-filter: blur(6px); box-shadow:0 6px 18px rgba(0,0,0,0.25); }
+    .counter .num { font-size:2rem; font-weight:700; color: #fff; text-shadow: 0 2px 12px rgba(124,58,237,0.12); }
+    .counter .label { margin-top:6px; color:#dbe7f2; font-size:0.95rem; }
+
+    /* ========== Internships (glass + neon) ========== */
+    .internships { padding:80px 20px; background:#1a1a2e; text-align:center; }
+    .card-container { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:20px; max-width:1000px; margin:auto; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border-radius:14px; padding:20px; box-shadow: 0 8px 30px rgba(0,0,0,0.45); transition:transform .45s cubic-bezier(.2,.9,.2,1), box-shadow .45s; backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,0.04); }
+    .card h4 { font-size:1.25rem; margin-bottom:10px; }
+    .card p { color:#d7e6f6; margin-bottom:12px; font-size:0.98rem; }
+    .card .features { display:flex; gap:8px; justify-content:center; margin-bottom:12px; flex-wrap:wrap; }
+    .chip { padding:6px 10px; border-radius:999px; background:rgba(255,255,255,0.03); font-size:0.82rem; color:#e6f3ff; }
+    .card:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 22px 60px rgba(124,58,237,0.14); border-image: linear-gradient(90deg,#00f5d4,#7c3aed) 1; }
+
+    /* neon glow for apply buttons */
+    .apply-btn { font-weight:800; padding:10px 18px; border-radius:999px; color:#031019; background: linear-gradient(90deg,#00f5d4,#7c3aed); box-shadow: 0 6px 20px rgba(124,58,237,0.12); text-decoration:none; display:inline-block; }
+    .apply-btn:hover { transform:translateY(-3px) scale(1.03); box-shadow: 0 10px 36px rgba(124,58,237,0.24); }
+
+    /* ========== Contact & Footer ========== */
+    .contact { padding:80px 20px; background: linear-gradient(120deg, rgba(0,0,0,0.4), rgba(0,0,0,0.8)); text-align:center; }
+    footer { padding:22px; text-align:center; background:#000; color:#aaa; font-size:0.9rem; position:relative; overflow:hidden; }
+    /* animated gradient border above footer */
+    footer::before { content:''; position:absolute; left:0; top:-6px; height:6px; width:100%; background: linear-gradient(90deg,#7c3aed,#06b6d4,#f59e0b); background-size:200% 100%; animation:footerGrad 6s linear infinite; }
+    @keyframes footerGrad { 0%{background-position:0%}100%{background-position:200%} }
+
+    /* newsletter form */
+    .newsletter { margin-top:12px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .newsletter input { padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.03); color:#fff; outline:none; min-width:220px; }
+    .newsletter button { padding:10px 14px; border-radius:10px; border:none; background:linear-gradient(90deg,#7c3aed,#06b6d4); color:#fff; cursor:pointer; }
+
+    /* social icons (svg) */
+    .social-icons a { display:inline-block; width:36px; height:36px; margin:0 6px; border-radius:8px; background:rgba(255,255,255,0.03); display:flex;align-items:center;justify-content:center; transition:transform .25s, background .25s; }
+    .social-icons a:hover { transform:translateY(-6px) scale(1.08); background: linear-gradient(90deg,#7c3aed,#06b6d4); color:#00101a; }
+
+    /* ========== Floating action button & theme toggle & chat ========== */
+    .fab { position:fixed; right:22px; bottom:22px; z-index:1200; width:56px; height:56px; border-radius:999px; background:linear-gradient(90deg,#7c3aed,#06b6d4); box-shadow:0 12px 30px rgba(12,18,30,.5); display:grid;place-items:center;color:#fff; cursor:pointer; transition:transform .18s; }
+    .fab:hover { transform:translateY(-6px) scale(1.06); }
+    .theme-toggle { position:fixed; right:22px; bottom:92px; z-index:1200; width:48px; height:48px; border-radius:12px; background:rgba(0,0,0,0.45); display:grid;place-items:center; cursor:pointer; border:1px solid rgba(255,255,255,0.04); }
+    .chat-box { position:fixed; right:22px; bottom:92px; width:320px; max-width:calc(100% - 32px); background:#081426; border-radius:12px; box-shadow:0 20px 50px rgba(2,6,23,0.7); padding:12px; transform:translateY(18px); opacity:0; pointer-events:none; transition:all .25s; z-index:1300; }
+    .chat-box.open { transform:translateY(0); opacity:1; pointer-events:auto; }
+    .chat-header { display:flex;justify-content:space-between;align-items:center;padding:6px 8px; color:#dbeefb; font-weight:700; }
+    .chat-messages { height:220px; overflow:auto; padding:8px; display:flex;flex-direction:column; gap:8px; }
+    .chat-input { display:flex; gap:8px; margin-top:8px; }
+    .chat-input input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); }
+    .chat-input button { padding:8px 12px; border-radius:8px; background:#00f5d4; border:none; cursor:pointer; }
+
+    /* responsiveness */
+    @media (max-width:720px) {
+      nav { padding:12px 18px }
+      .hero h2 { font-size:1.8rem }
+      #lottie-hero { display:none }
+      .card-container { gap:12px }
+    }
+    #a1{
+        margin-bottom: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== Existing navbar (unchanged content) + theme toggle button inserted ========== -->
+  <div id="scroll-progress"></div>
+  <nav>
+    <h1>Codenix Solutions</h1>
+    <ul>
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#internships">Internships</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <!-- Theme toggle (keeps original nav layout) -->
+    <div style="display:flex;align-items:center;gap:10px">
+      <button id="open-chat" title="Chat" style="background:transparent;border:none;color:#fff;cursor:pointer;font-size:18px">💬</button>
+      <div id="themeToggle" class="theme-toggle" title="Toggle dark/light" aria-hidden>
+        <!-- icon switches via JS -->
+        <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" style="color:#fff"><path d="M12 3v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 19v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4.2 4.2l1.4 1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18.4 18.4l1.4 1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/></svg>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== Hero (keeps your content) ========== -->
+  <section class="hero reveal" id="hero" data-parallax>
+    <h2>Innovating Ideas into Reality🚀</h2>
+    <p>Join our internship program and gain hands-on experience working on real-world startup projects with expert mentorship and a creative environment.</p>
+    <a href="https://forms.gle/KbrnCTrTiiZLrABr9"><button class="btn" id="applyTopBtn">Apply Now</button></a>
+
+    <!-- Lottie animation (decorative) -->
+    <div id="lottie-hero" aria-hidden></div>
+
+    <!-- Particles canvas layer (particles.js will target this) -->
+    <div id="particles-js" style="position:absolute; inset:0; z-index:0; pointer-events:none;"></div>
+  </section>
+
+  <!-- ========== About (added counters) ========== -->
+  <section class="about reveal" id="about">
+    <h3>About Our Codenix</h3>
+    <p>We are an innovative startup focused on developing cutting-edge solutions that solve real problems. Our internship program is designed to give you the skills and experience needed to excel in your career.</p>
+
+    <!-- counters -->
+    <div class="counters" aria-hidden>
+      <div class="counter">
+        <div class="num" data-target="120">0</div>
+        <div class="label">Projects Completed</div>
+      </div>
+      <div class="counter">
+        <div class="num" data-target="85">0</div>
+        <div class="label">Happy Interns</div>
+      </div>
+      <div class="counter">
+        <div class="num" data-target="40">0</div>
+        <div class="label">Mentors</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Internships (cards preserved, upgraded visually) ========== -->
+  <section class="internships reveal" id="internships">
+    <h3 id="a1">Our Internship Programs</h3>
+    <div class="card-container">
+      <div class="card">
+        <h4>💻 C++ Internship</h4>
+        <p>Master object-oriented programming and algorithms.</p>
+        <div class="features"><span class="chip">Algorithms</span><span class="chip">DS</span><span class="chip">Low-level</span></div>
+        <a class="apply-btn" href="https://forms.gle/KbrnCTrTiiZLrABr9" target="_blank" rel="noopener">Apply Now</a>
+      </div>
+      <div class="card">
+        <h4>☕ Java Internship</h4>
+        <p>Build robust backend systems and enterprise apps.</p>
+        <div class="features"><span class="chip">Spring</span><span class="chip">APIs</span><span class="chip">Databases</span></div>
+        <a class="apply-btn" href="https://forms.gle/KbrnCTrTiiZLrABr9" target="_blank" rel="noopener">Apply Now</a>
+      </div>
+      <div class="card">
+        <h4>🌐 Frontend Internship</h4>
+        <p>Create modern, responsive, and animated websites.</p>
+        <div class="features"><span class="chip">React</span><span class="chip">UI/UX</span><span class="chip">Animations</span></div>
+        <a class="apply-btn" href="https://forms.gle/KbrnCTrTiiZLrABr9" target="_blank" rel="noopener">Apply Now</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Contact (unchanged content + note) ========== -->
+  <section class="contact reveal" id="contact">
+    <h3>Get in Touch</h3>
+    <p>Email us at: <a href="mailto:solutioncodenix@gmail.com">solutioncodenix@gmail.com</a></p>
+
+  </section>
+
+  <!-- ========== Footer (with newsletter + social icons) ========== -->
+  <footer>
+    &copy; 2025 Codenix Solutions | Empowering Your Digital Future with Codenix
+    <div style="margin-top:10px;color:#cfeefc;font-weight:600">Subscribe for updates</div>
+    <div class="newsletter" role="form" aria-label="Subscribe form">
+      <input id="newsletterEmail" type="email" placeholder="Your email address" />
+      <button id="newsletterBtn">Subscribe</button>
+    </div>
+
+    <div class="social-icons" aria-hidden>
+      <!-- LinkedIn -->
+      <a href="https://linkedin.com" target="_blank" rel="noopener" title="LinkedIn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color:inherit"><path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4v14h-4zM7.5 8h3.8v1.9h.1c.5-.9 1.7-1.9 3.5-1.9 3.8 0 4.5 2.5 4.5 5.6V22h-4v-6.4c0-1.5 0-3.4-2.1-3.4-2.1 0-2.4 1.6-2.4 3.3V22h-4V8z"/></svg>
+      </a>
+      <!-- Instagram -->
+      <a href="https://instagram.com" target="_blank" rel="noopener" title="Instagram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color:inherit"><path d="M12 2.2c3.2 0 3.6 0 4.8.07 1.2.07 2 .25 2.5.42.6.2 1.03.44 1.48.89.45.45.69.88.89 1.48.17.5.35 1.3.42 2.5.07 1.2.07 1.6.07 4.8s0 3.6-.07 4.8c-.07 1.2-.25 2-.42 2.5-.2.6-.44 1.03-.89 1.48-.45.45-.88.69-1.48.89-.5.17-1.3.35-2.5.42-1.2.07-1.6.07-4.8.07s-3.6 0-4.8-.07c-1.2-.07-2-.25-2.5-.42-.6-.2-1.03-.44-1.48-.89-.45-.45-.69-.88-.89-1.48-.17-.5-.35-1.3-.42-2.5-.07-1.2-.07-1.6-.07-4.8s0-3.6.07-4.8c.07-1.2.25-2 .42-2.5.2-.6.44-1.03.89-1.48.45-.45.88-.69 1.48-.89.5-.17 1.3-.35 2.5-.42C8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.07 5.9.14 4.9.33 4.1.64c-.9.36-1.6.84-2.3 1.5C1.6 3.2 1.1 4 0.74 4.9c-.31.8-.5 1.8-.57 3C0 9.7 0 10.1 0 13.4s0 3.7.07 4.9c.07 1.2.26 2.2.57 3 .36.9.85 1.7 1.5 2.3.67.66 1.4 1.14 2.3 1.5.8.31 1.9.5 3 .57 1.2.07 1.6.07 4.9.07s3.7 0 4.9-.07c1.2-.07 2.2-.26 3-.57.9-.36 1.7-.85 2.3-1.5.66-.67 1.14-1.4 1.5-2.3.31-.8.5-1.9.57-3 .07-1.2.07-1.6.07-4.9s0-3.7-.07-4.9c-.07-1.2-.26-2.2-.57-3-.36-.9-.85-1.7-1.5-2.3-.67-.66-1.4-1.14-2.3-1.5-.8-.31-1.9-.5-3-.57C15.7 0 15.3 0 12 0zM12 5.8A6.2 6.2 0 1 0 12 18.2 6.2 6.2 0 1 0 12 5.8zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.9a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z"/></svg>
+      </a>
+      <!-- GitHub -->
+      <a href="https://github.com" target="_blank" rel="noopener" title="GitHub">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color:inherit"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.8-1.5-3.8-1.5-.5-1.3-1.2-1.6-1.2-1.6-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.8 1.6 2.7 2.2.7.2 1.3.2 2 .2.7 0 1.3 0 2-.2 1.9-.6 1.7-2.1 2.7-2.2 0 0 .6-1.1 1.7-1.2 0 0 1.2 0 .1.7 0 0-.7.3-1.2 1.6 0 0-.6 2.2-3.8 1.5v2c0 .3.2.6.8.5C20.7 21.4 24 17.1 24 12c0-6.4-5.1-11.5-12-11.5z"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <!-- ========== Floating action button & chat box ========== -->
+  <div id="fab" class="fab" title="Scroll to top / Apply">↑</div>
+
+  <div id="chatBox" class="chat-box" aria-hidden="true">
+    <div class="chat-header">MindForge Chat <button id="closeChat" style="background:transparent;border:none;color:#9feaf2;cursor:pointer">✕</button></div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input">
+      <input id="chatInput" placeholder="Type a message..." />
+      <button id="chatSend">Send</button>
+    </div>
+  </div>
+
+  <!-- ========== Small helper elements (ripple container) ========== -->
+  <div id="ripple-layer" style="position:absolute; inset:0; pointer-events:none; z-index:50;"></div>
+
+  <!-- ========== Scripts (all inline) ========== -->
+  <script>
+    /***********************
+     * 1) Scroll progress
+     ***********************/
+    (function progressBar(){
+      const bar = document.getElementById('scroll-progress');
+      function update() {
+        const doc = document.documentElement;
+        const scroll = (window.scrollY || window.pageYOffset);
+        const height = doc.scrollHeight - doc.clientHeight;
+        const pct = height ? (scroll/height)*100 : 0;
+        bar.style.width = pct+'%';
+      }
+      window.addEventListener('scroll', update, {passive:true});
+      update();
+    })();
+
+    /***********************
+     * 2) Reveal on scroll & start counters when visible
+     ***********************/
+    (function revealAndCounters(){
+      const reveals = document.querySelectorAll('.reveal');
+      const counters = document.querySelectorAll('.num');
+      function onScroll(){
+        const windowH = window.innerHeight;
+        reveals.forEach(el=>{
+          const top = el.getBoundingClientRect().top;
+          if(top < windowH - 120) el.classList.add('active');
+        });
+        // start counters once when visible
+        counters.forEach(counter=>{
+          if(counter.dataset.started) return;
+          const top = counter.getBoundingClientRect().top;
+          if(top < windowH - 100){
+            counter.dataset.started = '1';
+            animateCount(counter, parseInt(counter.dataset.target,10));
+          }
+        });
+      }
+      function animateCount(el, target){
+        const duration = 1400;
+        const start = +el.innerText || 0;
+        const startTime = performance.now();
+        function tick(now){
+          const t = Math.min(1,(now-startTime)/duration);
+          const eased = (1 - Math.pow(1 - t, 3));
+          el.innerText = Math.floor(start + (target - start) * eased);
+          if(t < 1) requestAnimationFrame(tick);
+          else el.innerText = target;
+        }
+        requestAnimationFrame(tick);
+      }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      window.addEventListener('load', onScroll);
+    })();
+
+    /***********************
+     * 3) Particles.js setup (decorative)
+     ***********************/
+    window.addEventListener('load', function(){
+      if(window.particlesJS){
+        try {
+          particlesJS('particles-js', {
+            "particles": {
+              "number": { "value": 40, "density": {"enable":true,"value_area":800}},
+              "color": { "value": ["#7c3aed","#06b6d4","#00f5d4"] },
+              "shape": { "type":"circle" },
+              "opacity": { "value":0.12, "random":true },
+              "size": { "value":6, "random":true },
+              "move": { "enable": true, "speed": 1, "direction":"none", "out_mode":"out" },
+              "line_linked": { "enable": false }
+            },
+            "interactivity": {
+              "events": { "onhover": { "enable": false }, "onclick": { "enable": false } }
+            },
+            "retina_detect": true
+          });
+        } catch(e){ /* ignore */ }
+      }
+    });
+
+    /***********************
+     * 4) Lottie animation load (decorative)
+     ***********************/
+    document.addEventListener('DOMContentLoaded', function(){
+      const lottieTarget = document.getElementById('lottie-hero');
+      if(lottieTarget && window.lottie){
+        // small, neutral looping animation (replace path with your JSON if desired)
+        lottie.loadAnimation({
+          container: lottieTarget,
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          path: 'https://assets9.lottiefiles.com/packages/lf20_jcikwtux.json' // neutral tech animation
+        });
+      }
+    });
+
+    /***********************
+     * 5) Parallax subtle effect (on scroll move background layers)
+     ***********************/
+    (function parallaxHero(){
+      const hero = document.querySelector('.hero');
+      if(!hero) return;
+      window.addEventListener('scroll', function(){
+        const sc = window.scrollY;
+        // slow background translate to simulate parallax
+        hero.style.backgroundPosition = `center ${-sc*0.08}px, center`;
+      }, {passive:true});
+    })();
+
+    /***********************
+     * 6) Ripple effect on hero (mouse move)
+     ***********************/
+    (function ripple(){
+      const layer = document.getElementById('ripple-layer');
+      const hero = document.querySelector('.hero');
+      if(!layer || !hero) return;
+      function createRipple(x,y){
+        const el = document.createElement('div');
+        el.className = 'ripple-circle';
+        const size = Math.random() * 160 + 60;
+        el.style.width = el.style.height = size + 'px';
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.opacity = 0.16;
+        layer.appendChild(el);
+        // animate scale + fade
+        el.animate([
+          { transform: 'translate(-50%,-50%) scale(.2)', opacity: 0.35 },
+          { transform: 'translate(-50%,-50%) scale(1.6)', opacity: 0 }
+        ], { duration: 1200 + Math.random()*800, easing: 'cubic-bezier(.2,.9,.2,1)'});
+        setTimeout(()=> el.remove(), 1800);
+      }
+      hero.addEventListener('mousemove', function(e){
+        const r = hero.getBoundingClientRect();
+        createRipple(e.clientX - r.left, e.clientY - r.top);
+      });
+    })();
+
+    /***********************
+     * 7) Floating action button (scroll to top & quick apply)
+     ***********************/
+    (function fab(){
+      const btn = document.getElementById('fab');
+      btn.addEventListener('click', ()=>{
+        // if near top -> open internals: scroll to internships
+        if(window.scrollY < 120) {
+          document.getElementById('internships').scrollIntoView({behavior:'smooth', block:'center'});
+        } else {
+          window.scrollTo({top:0,behavior:'smooth'});
+        }
+      });
+      window.addEventListener('scroll', ()=>{
+        if(window.scrollY > 300) btn.textContent = '↑';
+        else btn.textContent = '↓';
+      }, {passive:true});
+    })();
+
+    /***********************
+     * 8) Theme toggle (dark/light)
+     ***********************/
+    (function themeToggle(){
+      const toggle = document.getElementById('themeToggle');
+      const icon = document.getElementById('themeIcon');
+      const root = document.documentElement;
+      const key = 'mf-theme';
+      function setLight() {
+        root.style.setProperty('--bg-light', '#f4f7fb');
+        document.body.classList.add('light-mode');
+        localStorage.setItem(key,'light');
+        icon.innerHTML = '<path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+      }
+      function setDark() {
+        document.body.classList.remove('light-mode');
+        localStorage.setItem(key,'dark');
+        icon.innerHTML = '<path d="M12 3v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 19v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>';
+      }
+      toggle.addEventListener('click', ()=>{
+        if(document.body.classList.contains('light-mode')) setDark(); else setLight();
+      });
+      // initial
+      if(localStorage.getItem(key)==='light') setLight(); else setDark();
+    })();
+
+    /***********************
+     * 9) Simple chat widget (in-page)
+     ***********************/
+    (function chatWidget(){
+      const openBtn = document.getElementById('open-chat');
+      const chat = document.getElementById('chatBox');
+      const closeBtn = document.getElementById('closeChat');
+      const sendBtn = document.getElementById('chatSend');
+      const input = document.getElementById('chatInput');
+      const messages = document.getElementById('chatMessages');
+
+      function addMessage(text, from='me') {
+        const el = document.createElement('div');
+        el.style.maxWidth = '85%';
+        el.style.padding = '8px 10px';
+        el.style.borderRadius = '10px';
+        el.style.alignSelf = from==='me'?'flex-end':'flex-start';
+        el.style.background = from==='me'?'linear-gradient(90deg,#7c3aed,#06b6d4)':'rgba(255,255,255,0.06)';
+        el.style.color = from==='me'?'#00101a':'#e6f3ff';
+        el.innerText = text;
+        messages.appendChild(el);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      openBtn.addEventListener('click', ()=>{
+        chat.classList.toggle('open');
+      });
+      closeBtn.addEventListener('click', ()=> chat.classList.remove('open'));
+      sendBtn.addEventListener('click', ()=>{
+        const v = input.value.trim();
+        if(!v) return;
+        addMessage(v,'me');
+        input.value='';
+        setTimeout(()=> addMessage("Thanks — we'll get back to you soon! 🤝", 'bot'), 700);
+      });
+    })();
+
+    /***********************
+     * 10) Newsletter subscribe (simple local feedback)
+     ***********************/
+    (function newsletter(){
+      const btn = document.getElementById('newsletterBtn');
+      const email = document.getElementById('newsletterEmail');
+      btn.addEventListener('click', ()=>{
+        const v = email.value.trim();
+        if(!v || v.indexOf('@')===-1){ alert('Please enter a valid email'); return; }
+        btn.textContent = 'Subscribed ✓';
+        setTimeout(()=> btn.textContent='Subscribe', 1800);
+        email.value='';
+      });
+    })();
+
+    /***********************
+     * 11) Small accessibility: focus outlines for keyboard
+     ***********************/
+    (function focusOutline(){
+      document.body.addEventListener('keydown', function(e){
+        if(e.key==='Tab') document.documentElement.classList.add('show-focus');
+      }, {once:true});
+    })();
+  </script>
+</body>
+</html>
